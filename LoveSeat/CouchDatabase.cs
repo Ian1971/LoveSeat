@@ -9,6 +9,7 @@ using LoveSeat.Interfaces;
 using LoveSeat.Support;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Serialization;
 
 namespace LoveSeat
 {
@@ -280,6 +281,16 @@ namespace LoveSeat
                 return CreateDocument(document);
 
             var resp = GetRequest(string.Format("{0}/{1}?rev={2}", DatabaseBaseUri, document.Id, document.Rev)).Put().Form().Data(document).GetCouchResponse();
+
+            return resp.GetJObject();
+
+        }
+
+        public CouchResponseObject Update(string designDoc, string updateHandler, string docId, object doc)
+        {
+            var uri = string.Format("{0}/_design/{1}/_update/{2}/{3}", DatabaseBaseUri, designDoc, updateHandler, docId);
+            var data = JsonConvert.SerializeObject(doc, new JsonSerializerSettings { ContractResolver = new CamelCasePropertyNamesContractResolver() });
+            var resp = GetRequest(uri).Put().Json().Data(data).GetCouchResponse();
             return resp.GetJObject();
         }
 
@@ -376,6 +387,7 @@ namespace LoveSeat
             var req = GetRequest(uri);
             return req.GetCouchResponse().ResponseString;
         }
+
         public IListResult List(string listName, string viewName, ViewOptions options, string designDoc)
         {
             var uri = string.Format("{0}/_design/{1}/_list/{2}/{3}{4}", DatabaseBaseUri, designDoc, listName, viewName, options.ToString());
@@ -407,6 +419,7 @@ namespace LoveSeat
 
             return new ViewResult<T>(resp, req.GetRequest(), ObjectSerializer, includeDocs);
         }
+
         /// <summary>
         /// Gets the results of the view using any and all parameters
         /// </summary>
@@ -443,6 +456,7 @@ namespace LoveSeat
             ThrowDesignDocException();
             return View(viewName, options, this.defaultDesignDoc);
         }
+
         private ViewResult ProcessResults(string uri, ViewOptions options)
         {
             CouchRequest req = GetRequest(options, uri);
