@@ -494,6 +494,12 @@ namespace LoveSeat
             return ProcessResults(uri, options);
         }
 
+        public ViewResult GetDesignDocuments()
+        {
+            var uri = DatabaseBaseUri + "/_all_docs?startkey=%22_design%22&endkey=%22_design0%22";
+            return ProcessResults(uri, null);
+        }
+
 		#region Exist
 		public bool DoesDbExist()
 		{
