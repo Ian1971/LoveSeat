@@ -23,7 +23,8 @@ namespace LoveSeat
             set { objectSerializer = value; }
         }
 
-        protected readonly string DatabaseBaseUri;
+        protected readonly string databaseBaseUri;
+        public string DatabaseBaseUri { get { return databaseBaseUri; } }
         private string defaultDesignDoc = null;
 
         public CouchDatabase(string baseUri, string databaseName, string username, string password, AuthenticationType aT, DbType dbType)
@@ -31,7 +32,7 @@ namespace LoveSeat
         {
             this.databaseName = databaseName;
             this.baseUri = baseUri;
-            this.DatabaseBaseUri = baseUri + databaseName;
+            this.databaseBaseUri = baseUri + databaseName;
         }
 
         /// <summary>
