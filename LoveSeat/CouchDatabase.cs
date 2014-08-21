@@ -43,26 +43,35 @@ namespace LoveSeat
         /// <returns></returns>
         public CouchResponseObject CreateDocument(string id, string jsonForDocument)
         {
+            var resp = CreateDocumentRaw(id, jsonForDocument);
+            return resp.GetJObject();
+        }
+
+        public CouchResponse CreateDocumentRaw(string id, string jsonForDocument)
+        {
             var jobj = JObject.Parse(jsonForDocument);
             if (jobj.Value<object>("_rev") == null)
                 jobj.Remove("_rev");
-            var resp = GetRequest(DatabaseBaseUri + "/" + id)
-                .Put().Form()
-                .Data(jobj.ToString(Formatting.None))
-                .GetCouchResponse();
-            return
-                resp.GetJObject();
+            var resp = GetRequest(DatabaseBaseUri + "/" + id).Put().Form().Data(jobj.ToString(Formatting.None)).GetCouchResponse();
+            return resp;
         }
 
         public CouchResponseObject CreateDocument(IBaseObject doc)
         {
+            var resp = CreateDocumentRaw(doc);
+            return resp.GetJObject();
+        }
+
+        public CouchResponse CreateDocumentRaw(IBaseObject doc)
+        {
             var serialized = ObjectSerializer.Serialize(doc);
             if (doc.Id != null)
             {
-                return CreateDocument(doc.Id, serialized);
+                return CreateDocumentRaw(doc.Id, serialized);
             }
-            return CreateDocument(serialized);
+            return CreateDocumentRaw(serialized);
         }
+
         /// <summary>
         /// Creates a document when you intend for Couch to generate the id for you.
         /// </summary>
@@ -70,11 +79,17 @@ namespace LoveSeat
         /// <returns>The response as a JObject</returns>
         public CouchResponseObject CreateDocument(string jsonForDocument)
         {
-            var json = JObject.Parse(jsonForDocument); //to make sure it's valid json
-            var jobj =
-                GetRequest(DatabaseBaseUri + "/").Post().Json().Data(jsonForDocument).GetCouchResponse().GetJObject();
-            return jobj;
+            var resp = CreateDocumentRaw(jsonForDocument);
+            return resp.GetJObject();
         }
+
+        public CouchResponse CreateDocumentRaw(string jsonForDocument)
+        {
+            var json = JObject.Parse(jsonForDocument); //to make sure it's valid json
+            var jres = GetRequest(DatabaseBaseUri + "/").Post().Json().Data(jsonForDocument).GetCouchResponse();
+            return jres;
+        }
+
         public CouchResponseObject DeleteDocument(string id, string rev)
         {
             if (string.IsNullOrEmpty(id) || string.IsNullOrEmpty(rev))
@@ -279,19 +294,30 @@ namespace LoveSeat
         {
             if (document.Rev == null)
                 return CreateDocument(document);
-
-            var resp = GetRequest(string.Format("{0}/{1}?rev={2}", DatabaseBaseUri, document.Id, document.Rev)).Put().Form().Data(document).GetCouchResponse();
-
+            var resp = SaveDocumentRaw(document);
             return resp.GetJObject();
+        }
 
+        public CouchResponse SaveDocumentRaw(Document document)
+        {
+            if (document.Rev == null)
+                return CreateDocumentRaw(document);
+            var resp = GetRequest(string.Format("{0}/{1}?rev={2}", DatabaseBaseUri, document.Id, document.Rev)).Put().Form().Data(document).GetCouchResponse();
+            return resp;
         }
 
         public CouchResponseObject Update(string designDoc, string updateHandler, string docId, object doc)
         {
+            var resp = UpdateRaw(designDoc, updateHandler, docId, doc);
+            return resp.GetJObject();
+        }
+
+        public CouchResponse UpdateRaw(string designDoc, string updateHandler, string docId, object doc)
+        {
             var uri = string.Format("{0}/_design/{1}/_update/{2}/{3}", DatabaseBaseUri, designDoc, updateHandler, docId);
             var data = JsonConvert.SerializeObject(doc, new JsonSerializerSettings { ContractResolver = new CamelCasePropertyNamesContractResolver() });
             var resp = GetRequest(uri).Put().Json().Data(data).GetCouchResponse();
-            return resp.GetJObject();
+            return resp;
         }
 
         /// <summary>
