@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using LoveSeat.Support;
 using Newtonsoft.Json.Linq;
 
 namespace LoveSeat.Interfaces
@@ -59,8 +60,10 @@ namespace LoveSeat.Interfaces
         CouchResponseObject DeleteAttachment(string id, string rev, string attachmentName);
         CouchResponseObject DeleteAttachment(string id, string attachmentName);
         CouchResponseObject SaveDocument(Document document);
+        CouchResponse SaveDocumentRaw(Document document);
         BulkDocumentResponses SaveDocuments(Documents docs, bool all_or_nothing);
-
+        CouchResponseObject Update(string designDoc, string updateHandler, string docId, object doc);
+        CouchResponse UpdateRaw(string designDoc, string updateHandler, string docId, object doc);
         /// <summary>
         /// Gets the results of a view with no view parameters.  Use the overload to pass parameters
         /// </summary>
