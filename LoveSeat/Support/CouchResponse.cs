@@ -35,8 +35,7 @@ namespace LoveSeat.Support
         /// <returns></returns>
         public CouchResponseObject GetJObject()
         {
-            var resp = new CouchResponseObject(JObject.Parse(responseString));
-            resp.StatusCode = (int)statusCode;
+            var resp = new CouchResponseObject(JObject.Parse(responseString)) { StatusCode = (int)statusCode };
             return resp;
         }
 
@@ -49,6 +48,5 @@ namespace LoveSeat.Support
             var jobj = JObject.Parse(responseString);
             return new Document(jobj);
         }
-
     }
 }
