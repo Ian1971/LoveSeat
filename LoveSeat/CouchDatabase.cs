@@ -93,10 +93,16 @@ namespace LoveSeat
 
         public CouchResponseObject DeleteDocument(string id, string rev)
         {
+            return DeleteDocumentRaw(id, rev).GetJObject();
+        }
+
+        public CouchResponse DeleteDocumentRaw(string id, string rev)
+        {
             if (string.IsNullOrEmpty(id) || string.IsNullOrEmpty(rev))
                 throw new Exception("Both id and rev must have a value that is not empty");
-            return GetRequest(DatabaseBaseUri + "/" + id + "?rev=" + rev).Delete().Form().GetCouchResponse().GetJObject();
+            return GetRequest(DatabaseBaseUri + "/" + id + "?rev=" + rev).Delete().Form().GetCouchResponse();
         }
+
         /// <summary>
         /// Returns null if document is not found
         /// </summary>
